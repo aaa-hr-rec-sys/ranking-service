@@ -118,6 +118,15 @@ def add_pair_features(
 
     cv_cols = [
         "cv_id_hash",
+        "profession",
+        "group_profession",
+        "business_category",
+        "sfera",
+        "experience_bucket",
+        "education",
+        "federal_district",
+        "employment_type",
+        "schedule",
         "profession_norm",
         "group_profession_norm",
         "business_category_norm",
@@ -256,4 +265,3 @@ __all__ = [
     "get_categorical_feature_columns",
     "get_numeric_feature_columns",
 ]
-

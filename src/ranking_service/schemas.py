@@ -1,5 +1,7 @@
 ﻿from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field
 
 
@@ -32,6 +34,9 @@ class RankedCandidate(BaseModel):
     cv_id_hash: str
     rank: int
     model_score: float
+    embedding_score: float
+    embedding_rank: int
+    display: dict[str, Any] = Field(default_factory=dict)
 
 
 class Stage2Response(BaseModel):

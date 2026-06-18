@@ -16,6 +16,35 @@ class RankerError(RuntimeError):
     """Raised when candidate ranking fails."""
 
 
+DISPLAY_COLUMNS = [
+    "profession",
+    "group_profession",
+    "business_category",
+    "sfera",
+    "experience_bucket",
+    "education",
+    "federal_district",
+    "salary_bucketed",
+    "employment_type",
+    "schedule",
+]
+
+
+def _json_safe(value):
+    if pd.isna(value):
+        return None
+    return value
+
+
+def build_display(row: pd.Series) -> dict[str, object]:
+    display = {}
+    for column in DISPLAY_COLUMNS:
+        cv_column = f"cv_{column}"
+        if cv_column in row:
+            display[column] = _json_safe(row[cv_column])
+    return display
+
+
 def prepare_model_frame(
     feature_frame: pd.DataFrame,
     artifacts: RankingArtifacts,
@@ -122,6 +151,9 @@ def rank_candidates(
                 cv_id_hash=str(row["cv_id_hash"]),
                 rank=rank_position,
                 model_score=float(row["model_score"]),
+                embedding_score=float(row["embedding_score"]),
+                embedding_rank=int(row["embedding_rank"]),
+                display=build_display(row),
             )
         )
 
