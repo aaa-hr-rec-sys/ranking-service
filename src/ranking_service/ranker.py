@@ -1,14 +1,11 @@
 ﻿from __future__ import annotations
 
-from typing import Any
-
 import pandas as pd
 from catboost import Pool
 
 from ranking_service.artifacts import RankingArtifacts
 from ranking_service.feature_builder import build_feature_frame
 from ranking_service.schemas import (
-    CandidateDisplay,
     RankedCandidate,
     Stage2Request,
     Stage2Response,
@@ -17,97 +14,6 @@ from ranking_service.schemas import (
 
 class RankerError(RuntimeError):
     """Raised when candidate ranking fails."""
-
-
-def _optional_value(value: Any) -> Any:
-    if value is None:
-        return None
-
-    try:
-        if pd.isna(value):
-            return None
-    except (TypeError, ValueError):
-        pass
-
-    if hasattr(value, "item"):
-        try:
-            return value.item()
-        except ValueError:
-            return value
-
-    return value
-
-
-def _first_present(row: pd.Series, columns: list[str]) -> Any:
-    for column in columns:
-        if column in row.index:
-            value = _optional_value(row[column])
-            if value is not None:
-                return value
-    return None
-
-
-def _optional_float(value: Any) -> float | None:
-    value = _optional_value(value)
-    if value is None:
-        return None
-
-    try:
-        return float(value)
-    except (TypeError, ValueError):
-        return None
-
-
-def build_display(row: pd.Series) -> CandidateDisplay:
-    """Build optional display fields from normalized CV columns."""
-    return CandidateDisplay(
-        profession=_first_present(
-            row,
-            ["cv_profession_norm", "profession_norm", "profession"],
-        ),
-        group_profession=_first_present(
-            row,
-            ["cv_group_profession_norm", "group_profession_norm", "group_profession"],
-        ),
-        business_category=_first_present(
-            row,
-            [
-                "cv_business_category_norm",
-                "business_category_norm",
-                "business_category",
-            ],
-        ),
-        sfera=_first_present(
-            row,
-            ["cv_sfera_norm", "sfera_norm", "sfera"],
-        ),
-        experience_bucket=_first_present(
-            row,
-            ["cv_experience_common", "experience_common", "experience"],
-        ),
-        education=_first_present(
-            row,
-            ["cv_education_norm", "education_norm", "education"],
-        ),
-        federal_district=_first_present(
-            row,
-            ["cv_federal_district", "federal_district"],
-        ),
-        salary_bucketed=_optional_float(
-            _first_present(
-                row,
-                ["cv_salary_bucketed", "salary_bucketed", "salary"],
-            )
-        ),
-        employment_type=_first_present(
-            row,
-            ["cv_employment_type_norm", "employment_type_norm", "employment_type"],
-        ),
-        schedule=_first_present(
-            row,
-            ["cv_schedule_norm", "schedule_norm", "schedule"],
-        ),
-    )
 
 
 def prepare_model_frame(
@@ -216,9 +122,6 @@ def rank_candidates(
                 cv_id_hash=str(row["cv_id_hash"]),
                 rank=rank_position,
                 model_score=float(row["model_score"]),
-                embedding_score=float(row["embedding_score"]),
-                embedding_rank=int(row["embedding_rank"]),
-                display=build_display(row),
             )
         )
 

@@ -1,4 +1,4 @@
-from __future__ import annotations
+﻿from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
@@ -28,26 +28,10 @@ class Stage2Request(BaseModel):
     result_limit: int = Field(default=500, ge=1, le=500)
 
 
-class CandidateDisplay(BaseModel):
-    profession: str | None = None
-    group_profession: str | None = None
-    business_category: str | None = None
-    sfera: str | None = None
-    experience_bucket: str | None = None
-    education: str | None = None
-    federal_district: str | None = None
-    salary_bucketed: float | None = None
-    employment_type: str | None = None
-    schedule: str | None = None
-
-
 class RankedCandidate(BaseModel):
     cv_id_hash: str
     rank: int
     model_score: float
-    embedding_score: float
-    embedding_rank: int
-    display: CandidateDisplay | None = None
 
 
 class Stage2Response(BaseModel):
